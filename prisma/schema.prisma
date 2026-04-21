@@ -1,0 +1,41 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model Platform {
+  id                String  @id @default(uuid())
+  name              String
+  slug              String  @unique
+  logo              String
+  profileUrlPattern String
+  isActive          Boolean @default(true)
+  sortOrder         Int     @default(0)
+  checkMethod       String  @default("GET")
+  seoTitleOverride  String?
+  seoDescOverride   String?
+  contentTitle      String?
+  contentBody       String?
+}
+
+model SiteConfig {
+  id        String   @id @default("global")
+  content   String   // JSON string
+  seo       String   // JSON string
+  updatedAt DateTime @updatedAt
+}
+
+model Media {
+  id        String   @id @default(uuid())
+  url       String
+  publicId  String   @unique
+  createdAt DateTime @default(now())
+}
