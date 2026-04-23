@@ -81,12 +81,44 @@ export default function CheckerClient({
 
   const hasSearched = results.length > 0 || loading;
 
+  const isPlatformPage = initialPlatformSlug && platforms.length > 0;
+  
+  const rawSeoTitle = homeContent.seoTitle?.trim() || "";
+  const rawHeroTitle = homeContent.heroTitle?.trim() || "";
+  
+  let actualSeoTitle = rawSeoTitle || rawHeroTitle;
+  let actualDisplayTitle = rawHeroTitle || rawSeoTitle;
+
+  if (isPlatformPage) {
+    const platformTitle = `Check ${platforms[0].name} Username.`;
+    actualSeoTitle = platformTitle;
+    actualDisplayTitle = platformTitle;
+  }
+
+  const showSeparateSeoTitle = actualSeoTitle !== actualDisplayTitle && actualSeoTitle;
+
   return (
     <>
       <section className={styles.heroSection} style={{ paddingBottom: hasSearched ? "4rem" : "6rem" }}>
-        <h1 className={`display-lg ${styles.heroTitle}`}>
-          {initialPlatformSlug && platforms.length > 0 ? `Check ${platforms[0].name} Username.` : homeContent.heroTitle}
-        </h1>
+        {showSeparateSeoTitle ? (
+          <>
+            <h1 className="seo-heading" style={{ fontSize: '0.875rem', opacity: 0.7, marginBottom: '0.5rem', fontWeight: 'normal', letterSpacing: '0.02em' }}>
+              {actualSeoTitle}
+            </h1>
+            {homeContent.seoDescription?.trim() && (
+              <p className="seo-description" style={{ fontSize: '0.875rem', opacity: 0.6, marginBottom: '1rem', maxWidth: '600px', marginLeft: 'auto', marginRight: 'auto' }}>
+                {homeContent.seoDescription}
+              </p>
+            )}
+            <h2 className={`display-lg ${styles.heroTitle}`} style={{ marginTop: 0 }}>
+              {actualDisplayTitle}
+            </h2>
+          </>
+        ) : (
+          <h1 className={`display-lg ${styles.heroTitle}`}>
+            {actualDisplayTitle}
+          </h1>
+        )}
         <p className={styles.heroSubtitle}>{homeContent.heroSubtitle}</p>
 
         <form className={styles.searchContainer} onSubmit={handleSearch}>

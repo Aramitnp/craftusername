@@ -13,9 +13,18 @@ interface Props {
 }
 
 async function getPlatformBySlug(slug: string) {
-  if (!slug.endsWith("-username-checker")) return null;
-  const platformSlug = slug.replace("-username-checker", "");
-  return prisma.platform.findUnique({ where: { slug: platformSlug } });
+  // Try exact match first (if admin entered the full custom slug)
+  let platform = await prisma.platform.findUnique({ where: { slug } });
+  if (platform) return platform;
+
+  // Fallback: If it ends with -username-checker, strip it and try again.
+  // This supports legacy database entries like 'instagram' resolving for '/instagram-username-checker'
+  if (slug.endsWith("-username-checker")) {
+    const baseSlug = slug.replace("-username-checker", "");
+    platform = await prisma.platform.findUnique({ where: { slug: baseSlug } });
+  }
+
+  return platform;
 }
 
 function applyTemplate(template: string, platformName: string, brandName: string) {
@@ -33,7 +42,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { seo } = await getSiteConfig();
   const brand = seo.siteName || "CraftUsername";
   const canonical = seo.canonicalUrl || "https://craftusername.com";
-  const pageUrl = `${canonical}/${slug}`;
+  const fullSlug = platform.slug.endsWith("-username-checker") ? platform.slug : `${platform.slug}-username-checker`;
+  const pageUrl = `${canonical}/${fullSlug}`;
 
   const title = platform.seoTitleOverride || applyTemplate(seo.platformTitleTemplate, platform.name, brand);
   const description = platform.seoDescOverride || applyTemplate(seo.platformDescriptionTemplate, platform.name, brand);
@@ -100,14 +110,17 @@ export default async function PlatformCheckerPage({ params }: Props) {
         <section className={styles.relatedPlatformsSection}>
           <h3 className="headline-md" style={{ paddingTop: 0 }}>Check Other Platforms</h3>
           <div className={styles.popularPlatformsGrid}>
-            {relatedPlatforms.map(p => (
-              <Link key={p.id} href={`/${p.slug}-username-checker`} className={styles.popularPlatformCard}>
-                <div className={styles.popularPlatformLogo}>
-                  {p.logo ? <img src={p.logo} alt={p.name} /> : <span>{p.name[0]}</span>}
-                </div>
-                <span className={styles.popularPlatformName}>{p.name}</span>
-              </Link>
-            ))}
+            {relatedPlatforms.map(p => {
+              const fullSlug = p.slug.endsWith("-username-checker") ? p.slug : `${p.slug}-username-checker`;
+              return (
+                <Link key={p.id} href={`/${fullSlug}`} className={styles.popularPlatformCard}>
+                  <div className={styles.popularPlatformLogo}>
+                    {p.logo ? <img src={p.logo} alt={p.name} /> : <span>{p.name[0]}</span>}
+                  </div>
+                  <span className={styles.popularPlatformName}>{p.name}</span>
+                </Link>
+              );
+            })}
           </div>
         </section>
       )}

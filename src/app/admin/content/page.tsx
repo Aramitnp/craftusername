@@ -72,12 +72,46 @@ export default function AdminContentPage() {
           <h2 style={{ fontSize: "1.125rem", color: "var(--color-primary)", marginBottom: "1rem" }}>Homepage Hero</h2>
           <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
             <div>
-              <label className="label-md" style={{ display: "block", marginBottom: "0.5rem" }}>Hero Title</label>
-              <Input value={content.heroTitle} onChange={(e) => handleChange(e, "heroTitle")} required />
+              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.5rem" }}>
+                <label className="label-md" style={{ display: "block" }}>SEO Title (H1)</label>
+                <span style={{ fontSize: "0.75rem", color: (content.seoTitle || "").length > 60 ? "var(--color-error)" : "var(--color-on-surface-variant)", fontWeight: 600 }}>
+                  {(content.seoTitle || "").length} / 60 chars
+                </span>
+              </div>
+              <p style={{ fontSize: "0.75rem", color: "var(--color-on-surface-variant)", marginBottom: "0.5rem" }}>Optimized for search engines. If left empty, falls back to Display Title.</p>
+              <Input value={content.seoTitle || ""} onChange={(e) => handleChange(e, "seoTitle")} placeholder="e.g. Username Checker - Check Availability Instantly" />
             </div>
             <div>
-              <label className="label-md" style={{ display: "block", marginBottom: "0.5rem" }}>Hero Subtitle</label>
-              <Input value={content.heroSubtitle} onChange={(e) => handleChange(e, "heroSubtitle")} required />
+              <label className="label-md" style={{ display: "block", marginBottom: "0.5rem" }}>SEO Description (Optional)</label>
+              <p style={{ fontSize: "0.75rem", color: "var(--color-on-surface-variant)", marginBottom: "0.5rem" }}>Supporting text shown below SEO title in the DOM.</p>
+              <textarea 
+                value={content.seoDescription || ""} 
+                onChange={(e) => handleChange(e, "seoDescription")} 
+                placeholder="Optional brief description..."
+                style={{ width: "100%", padding: "1rem", borderRadius: "var(--radius-md)", border: "2px solid transparent", backgroundColor: "var(--color-surface-container-highest)", fontFamily: "var(--font-inter)", fontSize: "1rem", minHeight: "80px", resize: "vertical" }}
+              />
+            </div>
+
+            <div style={{ marginTop: "0.5rem", padding: "1rem", backgroundColor: "#fff", borderRadius: "8px", border: "1px solid #dfe1e5", fontFamily: "arial, sans-serif" }}>
+              <p style={{ fontSize: "12px", color: "#202124", marginBottom: "4px" }}>https://craftusername.com</p>
+              <h3 style={{ fontSize: "20px", color: "#1a0dab", margin: "0 0 4px 0", fontWeight: "normal", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                {content.seoTitle || content.heroTitle || "CraftUsername"}
+              </h3>
+              <p style={{ fontSize: "14px", color: "#4d5156", margin: 0, lineHeight: "1.58" }}>
+                {content.seoDescription || "Check username availability across multiple platforms instantly."}
+              </p>
+            </div>
+
+            <hr style={{ borderTop: "1px solid var(--color-surface-variant)", margin: "1rem 0" }} />
+
+            <div>
+              <label className="label-md" style={{ display: "block", marginBottom: "0.5rem" }}>Display Title (Hero Heading)</label>
+              <p style={{ fontSize: "0.75rem", color: "var(--color-on-surface-variant)", marginBottom: "0.5rem" }}>Visible to users. If empty, falls back to SEO Title.</p>
+              <Input value={content.heroTitle || ""} onChange={(e) => handleChange(e, "heroTitle")} />
+            </div>
+            <div>
+              <label className="label-md" style={{ display: "block", marginBottom: "0.5rem" }}>Display Subtitle (Hero Subheading)</label>
+              <Input value={content.heroSubtitle || ""} onChange={(e) => handleChange(e, "heroSubtitle")} />
             </div>
             <div>
               <label className="label-md" style={{ display: "block", marginBottom: "0.5rem" }}>Search Placeholder</label>

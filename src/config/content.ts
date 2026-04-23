@@ -4,6 +4,8 @@ export const config = {
     description: "Check username availability across multiple platforms instantly.",
   },
   home: {
+    seoTitle: "",
+    seoDescription: "",
     heroTitle: "Find Your Perfect Identity.",
     heroSubtitle: "Search across platforms in seconds.",
     searchPlaceholder: "Enter a username...",

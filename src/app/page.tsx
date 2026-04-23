@@ -73,14 +73,17 @@ export default async function Home() {
             {content.popularPlatformsDesc || "Jump directly to a platform-specific username checker."}
           </p>
           <div className={styles.popularPlatformsGrid}>
-            {allPlatforms.map(p => (
-              <Link key={p.id} href={`/${p.slug}-username-checker`} className={styles.popularPlatformCard}>
-                <div className={styles.popularPlatformLogo}>
-                  {p.logo ? <img src={p.logo} alt={p.name} /> : <span>{p.name[0]}</span>}
-                </div>
-                <span className={styles.popularPlatformName}>{p.name} Username Checker</span>
-              </Link>
-            ))}
+            {allPlatforms.map(p => {
+              const fullSlug = p.slug.endsWith("-username-checker") ? p.slug : `${p.slug}-username-checker`;
+              return (
+                <Link key={p.id} href={`/${fullSlug}`} className={styles.popularPlatformCard}>
+                  <div className={styles.popularPlatformLogo}>
+                    {p.logo ? <img src={p.logo} alt={p.name} /> : <span>{p.name[0]}</span>}
+                  </div>
+                  <span className={styles.popularPlatformName}>{p.name} Username Checker</span>
+                </Link>
+              );
+            })}
           </div>
         </section>
       )}

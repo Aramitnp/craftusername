@@ -2,6 +2,8 @@ import prisma from "@/lib/prisma";
 import { config as defaultConfig } from "@/config/content";
 
 const defaultContent = {
+  seoTitle: defaultConfig.home.seoTitle,
+  seoDescription: defaultConfig.home.seoDescription,
   heroTitle: defaultConfig.home.heroTitle,
   heroSubtitle: defaultConfig.home.heroSubtitle,
   searchPlaceholder: defaultConfig.home.searchPlaceholder,

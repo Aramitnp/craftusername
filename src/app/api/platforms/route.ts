@@ -19,10 +19,16 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   try {
     const data = await request.json();
+    
+    let cleanedSlug = (data.slug || "").trim().toLowerCase();
+    while (cleanedSlug.endsWith("-username-checker-username-checker")) {
+      cleanedSlug = cleanedSlug.replace("-username-checker-username-checker", "-username-checker");
+    }
+
     const platform = await prisma.platform.create({
       data: {
         name: data.name,
-        slug: data.slug,
+        slug: cleanedSlug,
         logo: data.logo,
         profileUrlPattern: data.profileUrlPattern,
         isActive: data.isActive ?? true,
