@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { config as defaultConfig } from "@/config/content";
+import sanitizeHtml from "sanitize-html";
 
 async function getOrCreateConfig() {
   let siteConfig = await prisma.siteConfig.findUnique({
@@ -69,7 +70,18 @@ export async function PUT(request: Request) {
     await getOrCreateConfig();
 
     const updateData: any = {};
-    if (data.content) updateData.content = JSON.stringify(data.content);
+    if (data.content) {
+      if (data.content.supportedPlatformsDesc) {
+        data.content.supportedPlatformsDesc = sanitizeHtml(data.content.supportedPlatformsDesc, {
+          allowedTags: sanitizeHtml.defaults.allowedTags.concat(['img', 'br']),
+          allowedAttributes: {
+            ...sanitizeHtml.defaults.allowedAttributes,
+            'a': ['href', 'name', 'target', 'rel']
+          }
+        });
+      }
+      updateData.content = JSON.stringify(data.content);
+    }
     if (data.seo) updateData.seo = JSON.stringify(data.seo);
 
     const updated = await prisma.siteConfig.update({

@@ -98,8 +98,13 @@ export default function AdminContentPage() {
               <Input value={content.supportedPlatformsTitle} onChange={(e) => handleChange(e, "supportedPlatformsTitle")} required />
             </div>
             <div>
-              <label className="label-md" style={{ display: "block", marginBottom: "0.5rem" }}>Description</label>
-              <Input value={content.supportedPlatformsDesc} onChange={(e) => handleChange(e, "supportedPlatformsDesc")} required />
+              <label className="label-md" style={{ display: "block", marginBottom: "0.5rem" }}>Description (Supports HTML)</label>
+              <textarea 
+                value={content.supportedPlatformsDesc} 
+                onChange={(e) => handleChange(e, "supportedPlatformsDesc")} 
+                required 
+                style={{ width: "100%", padding: "1rem", borderRadius: "var(--radius-md)", border: "2px solid transparent", backgroundColor: "var(--color-surface-container-highest)", fontFamily: "var(--font-inter)", fontSize: "1rem", minHeight: "100px", resize: "vertical" }}
+              />
             </div>
           </div>
         </div>

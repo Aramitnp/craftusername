@@ -106,7 +106,10 @@ export default function CheckerClient({
       {!hasSearched && platforms.length > 0 && (
         <section className={styles.supportedPlatformsSection}>
           <h2 className="headline-md" style={{ paddingTop: 0 }}>{homeContent.supportedPlatformsTitle}</h2>
-          <p style={{ color: "var(--color-on-surface-variant)", fontSize: "1.125rem" }}>{homeContent.supportedPlatformsDesc}</p>
+          <div 
+            style={{ color: "var(--color-on-surface-variant)", fontSize: "1.125rem", marginBottom: "1rem" }}
+            dangerouslySetInnerHTML={{ __html: homeContent.supportedPlatformsDesc }}
+          />
           <div className={styles.supportedPlatformsGrid}>
             {platforms.map(p => (
               <div key={p.id} className={styles.supportedBadge}>
