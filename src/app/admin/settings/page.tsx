@@ -77,10 +77,7 @@ export default function AdminSettingsPage() {
               <label className="label-md" style={{ display: "block", marginBottom: "0.5rem" }}>Site Name</label>
               <Input value={seo.siteName || ""} onChange={(e) => handleChange(e, "siteName")} required />
             </div>
-            <div>
-              <label className="label-md" style={{ display: "block", marginBottom: "0.5rem" }}>Canonical Domain URL</label>
-              <Input value={seo.canonicalUrl || ""} onChange={(e) => handleChange(e, "canonicalUrl")} required placeholder="https://example.com" />
-            </div>
+
           </div>
         </div>
 
