@@ -26,11 +26,13 @@ export default async function RootLayout({
 }>) {
   let headerScripts = "";
   let bodyScripts = "";
+  let customSchema = "";
 
   try {
     const { seo } = await getSiteConfig();
     headerScripts = seo.headerScripts || "";
     bodyScripts = seo.bodyScripts || "";
+    customSchema = seo.customSchema || "";
   } catch {
     // Silently fail during build or if DB is unavailable
   }
@@ -55,6 +57,11 @@ export default async function RootLayout({
                 headerScripts.match(/<meta[^>]*\/?>/gi)?.join("") || "",
             }}
           />
+        )}
+
+        {/* Inject custom schema */}
+        {customSchema && (
+          <div dangerouslySetInnerHTML={{ __html: customSchema }} />
         )}
       </head>
 

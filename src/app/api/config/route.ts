@@ -28,8 +28,6 @@ async function getOrCreateConfig() {
       canonicalUrl: "https://craftusername.com",
       mainTitle: "CraftUsername | Check Username Availability",
       mainDescription: defaultConfig.global.description,
-      platformTitleTemplate: "{Platform} Username Checker | CraftUsername",
-      platformDescriptionTemplate: "Check if your desired username is available on {Platform}.",
     };
 
     siteConfig = await prisma.siteConfig.create({

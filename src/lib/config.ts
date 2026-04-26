@@ -2,8 +2,6 @@ import prisma from "@/lib/prisma";
 import { config as defaultConfig } from "@/config/content";
 
 const defaultContent = {
-  seoTitle: defaultConfig.home.seoTitle,
-  seoDescription: defaultConfig.home.seoDescription,
   heroTitle: defaultConfig.home.heroTitle,
   heroSubtitle: defaultConfig.home.heroSubtitle,
   searchPlaceholder: defaultConfig.home.searchPlaceholder,
@@ -36,11 +34,6 @@ const defaultSeo = {
   ogTitle: "CraftUsername | Check Username Availability Across Platforms",
   ogDescription: "Instantly check if your desired username is available on Instagram, Twitter, GitHub, and more.",
   ogImage: "",
-  platformTitleTemplate: "{Platform} Username Checker | CraftUsername",
-  platformDescriptionTemplate: "Check if your desired username is available on {Platform}.",
-  platformOgTitleTemplate: "{Platform} Username Checker | CraftUsername",
-  platformOgDescTemplate: "Is your username taken on {Platform}? Find out instantly with CraftUsername.",
-  platformOgImage: "",
   headerScripts: "",
   bodyScripts: "",
 };

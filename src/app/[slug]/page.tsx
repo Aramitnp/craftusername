@@ -27,9 +27,7 @@ async function getPlatformBySlug(slug: string) {
   return platform;
 }
 
-function applyTemplate(template: string, platformName: string, brandName: string) {
-  return template.replace(/\{Platform\}/g, platformName).replace(/\{Brand\}/g, brandName);
-}
+
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
@@ -45,19 +43,17 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const fullSlug = platform.slug.endsWith("-username-checker") ? platform.slug : `${platform.slug}-username-checker`;
   const pageUrl = `${canonical}/${fullSlug}`;
 
-  const title = platform.seoTitleOverride || applyTemplate(seo.platformTitleTemplate, platform.name, brand);
-  const description = platform.seoDescOverride || applyTemplate(seo.platformDescriptionTemplate, platform.name, brand);
-  const ogTitle = platform.seoTitleOverride || applyTemplate(seo.platformOgTitleTemplate || seo.platformTitleTemplate, platform.name, brand);
-  const ogDescription = platform.seoDescOverride || applyTemplate(seo.platformOgDescTemplate || seo.platformDescriptionTemplate, platform.name, brand);
-  const ogImage = seo.platformOgImage || seo.ogImage;
+  const title = platform.seoTitleOverride || `${platform.name} Username Checker | ${brand}`;
+  const description = platform.seoDescOverride || `Check if your desired username is available on ${platform.name}.`;
+  const ogImage = seo.ogImage;
 
   return {
     title,
     description,
     alternates: { canonical: pageUrl },
     openGraph: {
-      title: ogTitle,
-      description: ogDescription,
+      title: title,
+      description: description,
       url: pageUrl,
       siteName: brand,
       type: "website",
@@ -65,8 +61,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     },
     twitter: {
       card: "summary_large_image",
-      title: ogTitle,
-      description: ogDescription,
+      title: title,
+      description: description,
       ...(ogImage ? { images: [ogImage] } : {}),
     },
   };

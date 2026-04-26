@@ -82,6 +82,21 @@ export default function AdminSeoPage() {
               <label className="label-md" style={{ display: "block", marginBottom: "0.5rem" }}>Meta Description</label>
               <textarea value={seo.mainDescription || ""} onChange={(e) => handleChange(e, "mainDescription")} required style={textareaStyle} />
             </div>
+            <div>
+              <label className="label-md" style={{ display: "block", marginBottom: "0.5rem" }}>Canonical URL</label>
+              <p style={{ fontSize: "0.75rem", color: "var(--color-on-surface-variant)", marginBottom: "0.5rem" }}>Used for &lt;link rel="canonical"&gt;</p>
+              <Input type="url" value={seo.canonicalUrl || ""} onChange={(e) => handleChange(e, "canonicalUrl")} placeholder="https://craftusername.com/" />
+            </div>
+            <div>
+              <label className="label-md" style={{ display: "block", marginBottom: "0.5rem" }}>Custom Schema (JSON-LD)</label>
+              <p style={{ fontSize: "0.75rem", color: "var(--color-on-surface-variant)", marginBottom: "0.5rem" }}>Used to insert structured data into the homepage.</p>
+              <textarea 
+                value={seo.customSchema || ""} 
+                onChange={(e) => handleChange(e, "customSchema")} 
+                placeholder={`<script type="application/ld+json">\n{\n  "@context": "https://schema.org",\n  "@type": "WebSite",\n  "name": "CraftUsername",\n  "url": "https://craftusername.com/"\n}\n</script>`}
+                style={{ ...textareaStyle, minHeight: "150px", fontFamily: "monospace" }} 
+              />
+            </div>
           </div>
         </div>
 
@@ -106,42 +121,7 @@ export default function AdminSeoPage() {
           </div>
         </div>
 
-        {/* Platform Meta Templates */}
-        <div style={{ backgroundColor: "var(--color-surface-container-lowest)", padding: "1.5rem", borderRadius: "var(--radius-lg)" }}>
-          <h2 style={{ fontSize: "1.125rem", color: "var(--color-primary)", marginBottom: "1rem" }}>Platform Page Templates</h2>
-          <p style={{ color: "var(--color-on-surface-variant)", fontSize: "0.875rem", marginBottom: "1rem" }}>
-            Use <code style={{ backgroundColor: "var(--color-surface)", padding: "0.2rem 0.4rem", borderRadius: "4px" }}>{'{Platform}'}</code> for platform name and <code style={{ backgroundColor: "var(--color-surface)", padding: "0.2rem 0.4rem", borderRadius: "4px" }}>{'{Brand}'}</code> for site name.
-          </p>
-          <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-            <div>
-              <label className="label-md" style={{ display: "block", marginBottom: "0.5rem" }}>Title Template</label>
-              <Input value={seo.platformTitleTemplate || ""} onChange={(e) => handleChange(e, "platformTitleTemplate")} required />
-            </div>
-            <div>
-              <label className="label-md" style={{ display: "block", marginBottom: "0.5rem" }}>Description Template</label>
-              <textarea value={seo.platformDescriptionTemplate || ""} onChange={(e) => handleChange(e, "platformDescriptionTemplate")} required style={textareaStyle} />
-            </div>
-          </div>
-        </div>
 
-        {/* Platform OG Templates */}
-        <div style={{ backgroundColor: "var(--color-surface-container-lowest)", padding: "1.5rem", borderRadius: "var(--radius-lg)" }}>
-          <h2 style={{ fontSize: "1.125rem", color: "var(--color-primary)", marginBottom: "1rem" }}>Platform Open Graph Templates</h2>
-          <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-            <div>
-              <label className="label-md" style={{ display: "block", marginBottom: "0.5rem" }}>OG Title Template</label>
-              <Input value={seo.platformOgTitleTemplate || ""} onChange={(e) => handleChange(e, "platformOgTitleTemplate")} />
-            </div>
-            <div>
-              <label className="label-md" style={{ display: "block", marginBottom: "0.5rem" }}>OG Description Template</label>
-              <textarea value={seo.platformOgDescTemplate || ""} onChange={(e) => handleChange(e, "platformOgDescTemplate")} style={textareaStyle} />
-            </div>
-            <div>
-              <label className="label-md" style={{ display: "block", marginBottom: "0.5rem" }}>Platform OG Image URL</label>
-              <Input value={seo.platformOgImage || ""} onChange={(e) => handleChange(e, "platformOgImage")} placeholder="Shared OG image for all platform pages" />
-            </div>
-          </div>
-        </div>
 
         {message && <div style={{ padding: "1rem", backgroundColor: "var(--color-surface-container)", borderRadius: "var(--radius-md)", color: "var(--color-primary)", fontWeight: 600 }}>{message}</div>}
 
