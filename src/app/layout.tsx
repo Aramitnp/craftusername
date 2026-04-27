@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { getSiteConfig } from "@/lib/config";
+import Link from "next/link";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -27,12 +28,14 @@ export default async function RootLayout({
   let headerScripts = "";
   let bodyScripts = "";
   let customSchema = "";
+  let siteLogo = "";
 
   try {
     const { seo } = await getSiteConfig();
     headerScripts = seo.headerScripts || "";
     bodyScripts = seo.bodyScripts || "";
     customSchema = seo.customSchema || "";
+    siteLogo = seo.siteLogo || "";
   } catch {
     // Silently fail during build or if DB is unavailable
   }
@@ -69,6 +72,24 @@ export default async function RootLayout({
         {/* Inject body scripts (GTM noscript etc.) */}
         {bodyScripts && (
           <div dangerouslySetInnerHTML={{ __html: bodyScripts }} />
+        )}
+
+        {/* Global Site Logo Header */}
+        {siteLogo && (
+          <header style={{ position: "absolute", top: 0, left: 0, padding: "1.5rem", zIndex: 50, width: "100%" }}>
+            <Link href="/" style={{ display: "inline-block" }}>
+              <img 
+                src={siteLogo} 
+                alt="Website Logo" 
+                style={{ 
+                  maxHeight: "80px", 
+                  width: "auto", 
+                  objectFit: "contain",
+                  display: "block"
+                }} 
+              />
+            </Link>
+          </header>
         )}
 
         {children}

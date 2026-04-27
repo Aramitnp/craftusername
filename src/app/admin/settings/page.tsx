@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
+import MediaPicker from "@/components/MediaPicker";
 
 export default function AdminSettingsPage() {
   const [seo, setSeo] = useState<any>(null);
@@ -76,6 +77,13 @@ export default function AdminSettingsPage() {
             <div>
               <label className="label-md" style={{ display: "block", marginBottom: "0.5rem" }}>Site Name</label>
               <Input value={seo.siteName || ""} onChange={(e) => handleChange(e, "siteName")} required />
+            </div>
+            <div>
+              <label className="label-md" style={{ display: "block", marginBottom: "0.5rem" }}>Website Logo</label>
+              <MediaPicker 
+                currentUrl={seo.siteLogo || ""} 
+                onSelect={(url) => setSeo({ ...seo, siteLogo: url })} 
+              />
             </div>
 
           </div>
