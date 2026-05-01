@@ -34,6 +34,10 @@ export async function POST(request: Request) {
         isActive: data.isActive ?? true,
         sortOrder: data.sortOrder ?? 0,
         checkMethod: data.checkMethod ?? "GET",
+        seoTitleOverride: data.seoTitleOverride || null,
+        seoDescOverride: data.seoDescOverride || null,
+        contentTitle: data.contentTitle || null,
+        contentBody: data.contentBody || null,
       },
     });
     return NextResponse.json(platform, { status: 201 });

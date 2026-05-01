@@ -24,6 +24,10 @@ export async function PUT(
         isActive: data.isActive,
         sortOrder: data.sortOrder,
         checkMethod: data.checkMethod,
+        seoTitleOverride: data.seoTitleOverride || null,
+        seoDescOverride: data.seoDescOverride || null,
+        contentTitle: data.contentTitle || null,
+        contentBody: data.contentBody || null,
       },
     });
     return NextResponse.json(platform);
