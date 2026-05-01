@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { getSiteConfig } from "@/lib/config";
 import Link from "next/link";
+import GlobalLogo from "@/components/GlobalLogo";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -75,22 +76,7 @@ export default async function RootLayout({
         )}
 
         {/* Global Site Logo Header */}
-        {siteLogo && (
-          <header style={{ position: "absolute", top: 0, left: 0, padding: "1.5rem", zIndex: 50, width: "100%" }}>
-            <Link href="/" style={{ display: "inline-block" }}>
-              <img 
-                src={siteLogo} 
-                alt="Website Logo" 
-                style={{ 
-                  maxHeight: "80px", 
-                  width: "auto", 
-                  objectFit: "contain",
-                  display: "block"
-                }} 
-              />
-            </Link>
-          </header>
-        )}
+        <GlobalLogo logoUrl={siteLogo} />
 
         {children}
       </body>
