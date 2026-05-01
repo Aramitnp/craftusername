@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
-import { Button } from "@/components/ui/Button";
 
 interface MediaItem {
   id: string;
@@ -88,21 +87,37 @@ export default function AdminMediaPage() {
           <h1 className="headline-md" style={{ paddingTop: 0, marginBottom: "0.25rem" }}>Media Library</h1>
           <p style={{ color: "var(--color-on-surface-variant)", margin: 0 }}>Upload and manage images for platform logos and content.</p>
         </div>
-        <div>
+        <div style={{ position: "relative" }}>
           <input
             ref={fileInputRef}
             type="file"
             accept="image/*"
             onChange={handleUpload}
-            style={{ display: "none" }}
+            style={{ position: "absolute", width: 0, height: 0, opacity: 0, overflow: "hidden" }}
             id="media-upload"
-          />
-          <Button
-            onClick={() => fileInputRef.current?.click()}
             disabled={uploading}
+          />
+          <label
+            htmlFor="media-upload"
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              justifyContent: "center",
+              borderRadius: "var(--radius-md)",
+              fontFamily: "var(--font-inter)",
+              fontWeight: 600,
+              cursor: uploading ? "not-allowed" : "pointer",
+              border: "none",
+              padding: "0.75rem 1.5rem",
+              fontSize: "1rem",
+              background: "linear-gradient(135deg, var(--color-primary), var(--color-primary-container))",
+              color: "var(--color-on-primary)",
+              opacity: uploading ? 0.6 : 1,
+              transition: "all 0.2s ease",
+            }}
           >
             {uploading ? "Uploading..." : "Upload Image"}
-          </Button>
+          </label>
         </div>
       </div>
 
