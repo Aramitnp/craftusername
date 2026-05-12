@@ -85,9 +85,14 @@ const defaultSeo = {
 };
 
 export async function getSiteConfig() {
-  const siteConfig = await prisma.siteConfig.findUnique({
-    where: { id: "global" },
-  });
+  let siteConfig = null;
+  try {
+    siteConfig = await prisma.siteConfig.findUnique({
+      where: { id: "global" },
+    });
+  } catch (error) {
+    console.warn("Could not fetch siteConfig from DB, using defaults.", error);
+  }
 
   if (!siteConfig) {
     return { content: defaultContent, seo: defaultSeo };

@@ -200,7 +200,7 @@ export default function AdminFooterPage() {
                     <h3 style={{ fontSize: "1rem", color: "var(--color-on-surface)", margin: 0 }}>Links</h3>
                     <Button
                       type="button"
-                      variant="outline"
+                      variant="secondary"
                       onClick={() => {
                         const cols = [...footer.columns];
                         cols[colIndex].links.push({
