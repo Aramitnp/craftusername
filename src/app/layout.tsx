@@ -4,6 +4,8 @@ import "./globals.css";
 import { getSiteConfig } from "@/lib/config";
 import Link from "next/link";
 import GlobalLogo from "@/components/GlobalLogo";
+import Script from "next/script";
+import Footer from "@/components/Footer";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -46,7 +48,8 @@ export default async function RootLayout({
       <head>
         {/* Inject header scripts (GTM, analytics, meta verification) */}
         {headerScripts && (
-          <script
+          <Script
+            id="custom-header-scripts"
             dangerouslySetInnerHTML={{
               __html: headerScripts.replace(/<\/?script[^>]*>/gi, ""),
             }}
@@ -79,6 +82,8 @@ export default async function RootLayout({
         <GlobalLogo logoUrl={siteLogo} />
 
         {children}
+        
+        <Footer />
       </body>
     </html>
   );

@@ -26,7 +26,7 @@ async function run() {
       platformDescriptionTemplate: "Check if your desired username is available on {Platform}.",
     };
 
-    let siteConfig = await prisma.siteConfig.create({
+    const siteConfig = await prisma.siteConfig.create({
       data: {
         id: "global",
         content: JSON.stringify(defaultContent),

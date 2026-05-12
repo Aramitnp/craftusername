@@ -39,6 +39,37 @@ export default async function Home() {
     orderBy: { sortOrder: "asc" },
   });
 
+  let featuredPosts: any[] = [];
+  
+  if (content.featuredBlogPosts && content.featuredBlogPosts.length > 0) {
+    featuredPosts = await prisma.blogPost.findMany({
+      where: { 
+        id: { in: content.featuredBlogPosts },
+        status: "PUBLISHED"
+      },
+      include: { category: true, tags: true },
+      take: 3
+    });
+  } else if (content.featuredBlogTagId) {
+    featuredPosts = await prisma.blogPost.findMany({
+      where: {
+        status: "PUBLISHED",
+        tags: { some: { id: content.featuredBlogTagId } }
+      },
+      include: { category: true, tags: true },
+      orderBy: { publishedAt: "desc" },
+      take: 3
+    });
+  } else {
+    // Fallback: Latest 3 posts
+    featuredPosts = await prisma.blogPost.findMany({
+      where: { status: "PUBLISHED" },
+      include: { category: true, tags: true },
+      orderBy: { publishedAt: "desc" },
+      take: 3
+    });
+  }
+
   return (
     <main className={styles.main}>
       <CheckerClient dynamicContent={content} />
@@ -81,6 +112,53 @@ export default async function Home() {
                     {p.logo ? <img src={p.logo} alt={p.name} /> : <span>{p.name[0]}</span>}
                   </div>
                   <span className={styles.popularPlatformName}>{p.name} Username Checker</span>
+                </Link>
+              );
+            })}
+          </div>
+        </section>
+      )}
+
+      {/* Homepage Blog Section */}
+      {featuredPosts.length > 0 && (
+        <section className={styles.homepageBlogSection}>
+          <h2 className="headline-md">{content.homepageBlogTitle || "Latest Username Ideas & Guides"}</h2>
+          <p style={{ color: "var(--color-on-surface-variant)", fontSize: "1.125rem", marginBottom: "1rem" }}>
+            {content.homepageBlogSubtitle || "Explore tips, username ideas, and branding guides for social media platforms."}
+          </p>
+          
+          <div className={styles.homepageBlogGrid}>
+            {featuredPosts.map((post) => {
+              let excerpt = post.seoDescription;
+              if (!excerpt && post.content) {
+                const plainText = post.content.replace(/<[^>]*>?/gm, '');
+                excerpt = plainText.substring(0, 150) + "...";
+              }
+
+              return (
+                <Link key={post.id} href={`/blog/${post.slug}`} className={styles.homepageBlogCard}>
+                  {post.featuredImage && (
+                    <div className={styles.homepageBlogImage}>
+                      <img 
+                        src={post.featuredImage} 
+                        alt={post.featuredImageAlt || post.title} 
+                        loading="lazy"
+                      />
+                    </div>
+                  )}
+                  <div className={styles.homepageBlogContent}>
+                    {post.category && (
+                      <span className={styles.homepageBlogBadge}>
+                        {post.category.name}
+                      </span>
+                    )}
+                    <h3 className={styles.homepageBlogTitle}>{post.title}</h3>
+                    <p className={styles.homepageBlogExcerpt}>{excerpt}</p>
+                    <div className={styles.homepageBlogFooter}>
+                      <span className={styles.homepageBlogReadMore}>Read More →</span>
+                      {post.publishedAt && <span>{new Date(post.publishedAt).toLocaleDateString()}</span>}
+                    </div>
+                  </div>
                 </Link>
               );
             })}

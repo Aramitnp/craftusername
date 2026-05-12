@@ -16,7 +16,7 @@ export default function AdminAuthProvider({ children }: { children: React.ReactN
 
   useEffect(() => {
     if (localStorage.getItem("adminAuth") === "true") {
-      setIsAuthenticated(true);
+      setTimeout(() => setIsAuthenticated(true), 0);
     }
   }, []);
 
@@ -77,6 +77,10 @@ export default function AdminAuthProvider({ children }: { children: React.ReactN
 
   const navItems = [
     { label: "Platforms", path: "/admin/platforms" },
+    { label: "Pages", path: "/admin/pages" },
+    { label: "Blog Posts", path: "/admin/blog" },
+    { label: "Blog Categories", path: "/admin/blog/categories" },
+    { label: "Blog Tags", path: "/admin/blog/tags" },
     { label: "Media", path: "/admin/media" },
     { label: "Content", path: "/admin/content" },
     { label: "SEO", path: "/admin/seo" },

@@ -9,6 +9,8 @@ export default function AdminContentPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
+  const [tags, setTags] = useState<any[]>([]);
+  const [posts, setPosts] = useState<any[]>([]);
 
   useEffect(() => {
     fetch("/api/config")
@@ -20,7 +22,17 @@ export default function AdminContentPage() {
           return;
         }
         setContent(data.content);
-        setLoading(false);
+        
+        // Fetch tags and posts for Homepage Blog Section
+        Promise.all([
+          fetch("/api/blog/tags").then(r => r.json()),
+          fetch("/api/blog").then(r => r.json())
+        ]).then(([tagsData, postsData]) => {
+          if (!tagsData.error) setTags(tagsData);
+          if (!postsData.error) setPosts(postsData);
+        }).finally(() => {
+          setLoading(false);
+        });
       })
       .catch(err => {
         setMessage("Error connecting to server.");
@@ -178,6 +190,71 @@ export default function AdminContentPage() {
         </div>
 
         <div style={{ backgroundColor: "var(--color-surface-container-lowest)", padding: "1.5rem", borderRadius: "var(--radius-lg)" }}>
+          <h2 style={{ fontSize: "1.125rem", color: "var(--color-primary)", marginBottom: "1rem" }}>Homepage Blog Section</h2>
+          <p style={{ color: "var(--color-on-surface-variant)", fontSize: "0.875rem", marginBottom: "1.5rem" }}>
+            Showcase latest username ideas and guides on the homepage.
+          </p>
+          
+          <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
+            <div>
+              <label className="label-md" style={{ display: "block", marginBottom: "0.5rem" }}>Section Title</label>
+              <Input value={content.homepageBlogTitle || "Latest Username Ideas & Guides"} onChange={(e) => handleChange(e, "homepageBlogTitle")} />
+            </div>
+            <div>
+              <label className="label-md" style={{ display: "block", marginBottom: "0.5rem" }}>Section Subtitle</label>
+              <Input value={content.homepageBlogSubtitle || "Explore tips, username ideas, and branding guides for social media platforms."} onChange={(e) => handleChange(e, "homepageBlogSubtitle")} />
+            </div>
+            
+            <div style={{ borderTop: "1px solid var(--color-outline-variant)", paddingTop: "1.5rem" }}>
+              <label className="label-md" style={{ display: "block", marginBottom: "0.5rem" }}>A. Auto-fetch via Featured Tag</label>
+              <p style={{ fontSize: "0.75rem", color: "var(--color-on-surface-variant)", marginBottom: "0.5rem" }}>Select a tag to automatically show the latest 3 published posts with this tag.</p>
+              <select
+                value={content.featuredBlogTagId || ""}
+                onChange={(e) => setContent({ ...content, featuredBlogTagId: e.target.value })}
+                style={{ width: "100%", padding: "0.75rem", borderRadius: "var(--radius-md)", border: "1px solid var(--color-outline)", backgroundColor: "var(--color-surface)", fontSize: "0.9375rem" }}
+              >
+                <option value="">-- No Tag Selected --</option>
+                {tags.map(tag => (
+                  <option key={tag.id} value={tag.id}>{tag.name}</option>
+                ))}
+              </select>
+            </div>
+
+            <div style={{ borderTop: "1px solid var(--color-outline-variant)", paddingTop: "1.5rem" }}>
+              <label className="label-md" style={{ display: "block", marginBottom: "0.5rem" }}>B. Manual Override (Select Specific Posts)</label>
+              <p style={{ fontSize: "0.75rem", color: "var(--color-on-surface-variant)", marginBottom: "0.5rem" }}>If any posts are selected here, they will override the tag auto-fetch above. Max 3.</p>
+              
+              <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem", maxHeight: "250px", overflowY: "auto", border: "1px solid var(--color-outline)", borderRadius: "var(--radius-md)", padding: "0.5rem", backgroundColor: "var(--color-surface)" }}>
+                {posts.map(post => {
+                  const isSelected = (content.featuredBlogPosts || []).includes(post.id);
+                  return (
+                    <label key={post.id} style={{ display: "flex", alignItems: "center", gap: "0.5rem", padding: "0.5rem", cursor: "pointer", backgroundColor: isSelected ? "var(--color-surface-container-highest)" : "transparent", borderRadius: "var(--radius-sm)" }}>
+                      <input 
+                        type="checkbox" 
+                        checked={isSelected}
+                        onChange={(e) => {
+                          let newPosts = [...(content.featuredBlogPosts || [])];
+                          if (e.target.checked) {
+                            if (newPosts.length < 3) newPosts.push(post.id);
+                            else alert("You can only select up to 3 manual posts.");
+                          } else {
+                            newPosts = newPosts.filter(id => id !== post.id);
+                          }
+                          setContent({ ...content, featuredBlogPosts: newPosts });
+                        }}
+                      />
+                      <span style={{ fontSize: "0.875rem", fontWeight: isSelected ? 600 : 400 }}>{post.title}</span>
+                      <span style={{ fontSize: "0.75rem", color: "var(--color-on-surface-variant)", marginLeft: "auto" }}>{post.status}</span>
+                    </label>
+                  );
+                })}
+                {posts.length === 0 && <span style={{ fontSize: "0.875rem", color: "var(--color-on-surface-variant)", padding: "0.5rem" }}>No blog posts found.</span>}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div style={{ backgroundColor: "var(--color-surface-container-lowest)", padding: "1.5rem", borderRadius: "var(--radius-lg)" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
             <h2 style={{ fontSize: "1.125rem", color: "var(--color-primary)", margin: 0 }}>FAQ Section</h2>
             <Button type="button" onClick={() => {
@@ -248,6 +325,16 @@ export default function AdminContentPage() {
               </p>
             )}
           </div>
+        </div>
+
+        <div style={{ backgroundColor: "var(--color-surface-container-lowest)", padding: "1.5rem", borderRadius: "var(--radius-lg)" }}>
+          <h2 style={{ fontSize: "1.125rem", color: "var(--color-primary)", marginBottom: "1rem" }}>Footer Settings</h2>
+          <p style={{ color: "var(--color-on-surface-variant)", fontSize: "0.875rem", marginBottom: "1.5rem" }}>
+            Manage your site-wide footer including brand information, columns, and internal links.
+          </p>
+          <a href="/admin/content/footer" style={{ display: "inline-block", textDecoration: "none" }}>
+            <Button type="button" style={{ width: "auto" }}>Manage Footer Settings</Button>
+          </a>
         </div>
 
         {message && <div style={{ padding: "1rem", backgroundColor: "var(--color-surface-container)", borderRadius: "var(--radius-md)", color: "var(--color-primary)", fontWeight: 600 }}>{message}</div>}

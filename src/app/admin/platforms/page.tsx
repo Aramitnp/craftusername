@@ -10,16 +10,16 @@ import { config } from "@/config/content";
 export default function PlatformsPage() {
   const [platforms, setPlatforms] = useState<any[]>([]);
 
-  useEffect(() => {
-    fetchPlatforms();
-  }, []);
-
   const fetchPlatforms = () => {
     fetch("/api/platforms")
       .then((res) => res.json())
       .then((data) => setPlatforms(data))
       .catch(console.error);
   };
+
+  useEffect(() => {
+    fetchPlatforms();
+  }, []);
 
   const deletePlatform = async (id: string) => {
     if (!confirm("Are you sure you want to delete this platform?")) return;

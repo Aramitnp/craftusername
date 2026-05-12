@@ -39,3 +39,87 @@ model Media {
   publicId  String   @unique
   createdAt DateTime @default(now())
 }
+
+model Page {
+  id               String   @id @default(uuid())
+  title            String
+  slug             String   @unique
+  seoTitle         String?
+  seoDescription   String?
+  openGraphTitle   String?
+  openGraphDesc    String?
+  openGraphImage   String?
+  featuredImage    String?
+  featuredImageAlt String?
+  content          String?
+  status           String   @default("DRAFT")
+  robots           String   @default("index, follow")
+  publishedAt      DateTime?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
+
+model BlogPost {
+  id               String   @id @default(uuid())
+  title            String
+  slug             String   @unique
+  seoTitle         String?
+  seoDescription   String?
+  openGraphTitle   String?
+  openGraphDesc    String?
+  openGraphImage   String?
+  featuredImage    String?
+  featuredImageAlt String?
+  categoryId       String?
+  category         BlogCategory? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  tags             BlogTag[]
+  author           String?
+  content          String?
+  status           String   @default("DRAFT")
+  robots           String   @default("index, follow")
+  publishedAt      DateTime?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
+
+model BlogCategory {
+  id               String     @id @default(uuid())
+  name             String
+  slug             String     @unique
+  description      String?
+  seoTitle         String?
+  seoDescription   String?
+  featuredImage    String?
+  featuredImageAlt String?
+  status           String     @default("ACTIVE")
+  robots           String     @default("index, follow")
+  createdAt        DateTime   @default(now())
+  updatedAt        DateTime   @updatedAt
+  
+  posts            BlogPost[]
+}
+
+model BlogTag {
+  id               String     @id @default(uuid())
+  name             String
+  slug             String     @unique
+  description      String?
+  seoTitle         String?
+  seoDescription   String?
+  featuredImage    String?
+  featuredImageAlt String?
+  status           String     @default("ACTIVE")
+  robots           String     @default("noindex, follow")
+  createdAt        DateTime   @default(now())
+  updatedAt        DateTime   @updatedAt
+  
+  posts            BlogPost[]
+}
+
+model Redirect {
+  id               String   @id @default(uuid())
+  source           String   @unique
+  destination      String
+  permanent        Boolean  @default(true)
+  createdAt        DateTime @default(now())
+}

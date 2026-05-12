@@ -28,7 +28,7 @@ export default function AdminMediaPage() {
     }
   };
 
-  useEffect(() => { fetchMedia(); }, []);
+  useEffect(() => { setTimeout(() => fetchMedia(), 0); }, []);
 
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];

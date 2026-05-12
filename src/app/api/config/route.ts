@@ -2,47 +2,24 @@ import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { config as defaultConfig } from "@/config/content";
 import sanitizeHtml from "sanitize-html";
+import { getSiteConfig } from "@/lib/config";
 
 async function getOrCreateConfig() {
+  const config = await getSiteConfig();
+  // Ensure it actually exists in DB
   let siteConfig = await prisma.siteConfig.findUnique({
     where: { id: "global" },
   });
-
   if (!siteConfig) {
-    const defaultContent = {
-      heroTitle: defaultConfig.home.heroTitle,
-      heroSubtitle: defaultConfig.home.heroSubtitle,
-      searchPlaceholder: defaultConfig.home.searchPlaceholder,
-      searchButton: defaultConfig.home.searchButton,
-      supportedPlatformsTitle: defaultConfig.home.supportedPlatformsTitle,
-      supportedPlatformsDesc: defaultConfig.home.supportedPlatformsDesc,
-      explanationTitle: defaultConfig.seoContent.explanationTitle,
-      explanationText: defaultConfig.seoContent.explanationText,
-      faq: defaultConfig.seoContent.faq,
-      relatedToolsTitle: defaultConfig.seoContent.relatedToolsTitle,
-      relatedTools: defaultConfig.seoContent.relatedTools,
-    };
-
-    const defaultSeo = {
-      siteName: defaultConfig.global.siteName,
-      canonicalUrl: "https://craftusername.com",
-      mainTitle: "CraftUsername | Check Username Availability",
-      mainDescription: defaultConfig.global.description,
-    };
-
     siteConfig = await prisma.siteConfig.create({
       data: {
         id: "global",
-        content: JSON.stringify(defaultContent),
-        seo: JSON.stringify(defaultSeo),
+        content: JSON.stringify(config.content),
+        seo: JSON.stringify(config.seo),
       },
     });
   }
-
-  return {
-    content: JSON.parse(siteConfig.content),
-    seo: JSON.parse(siteConfig.seo),
-  };
+  return config;
 }
 
 export async function GET() {
