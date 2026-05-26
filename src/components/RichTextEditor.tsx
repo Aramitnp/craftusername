@@ -16,6 +16,7 @@ export default function RichTextEditor({ value, onChange }: RichTextEditorProps)
   const [showMediaPicker, setShowMediaPicker] = useState(false);
   const [showLinkPrompt, setShowLinkPrompt] = useState(false);
   const [linkUrl, setLinkUrl] = useState('');
+  const [isHtmlMode, setIsHtmlMode] = useState(false);
   
   // Basic media picker state
   const [media, setMedia] = useState<{url: string, id: string}[]>([]);
@@ -91,17 +92,31 @@ export default function RichTextEditor({ value, onChange }: RichTextEditorProps)
     editor.chain().focus().extendMarkRange('link').setLink({ href: url }).run();
   };
 
+  const toggleMode = () => {
+    if (isHtmlMode) {
+      if (editor) {
+        editor.commands.setContent(value);
+      }
+      setIsHtmlMode(false);
+    } else {
+      setShowMediaPicker(false);
+      setIsHtmlMode(true);
+    }
+  };
+
   return (
     <div style={{ border: "1px solid var(--color-outline)", borderRadius: "var(--radius-md)", overflow: "hidden" }}>
       <div style={{ display: "flex", flexWrap: "wrap", gap: "0.25rem", padding: "0.5rem", backgroundColor: "var(--color-surface-container-lowest)", borderBottom: "1px solid var(--color-outline)" }}>
-        <Button
-          type="button"
-          variant="ghost"
-          onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
-          style={{ backgroundColor: editor.isActive('heading', { level: 2 }) ? "var(--color-primary-container)" : "transparent", padding: "0.25rem 0.5rem" }}
-        >
-          H2
-        </Button>
+        {!isHtmlMode && (
+          <>
+            <Button
+              type="button"
+              variant="ghost"
+              onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
+              style={{ backgroundColor: editor.isActive('heading', { level: 2 }) ? "var(--color-primary-container)" : "transparent", padding: "0.25rem 0.5rem" }}
+            >
+              H2
+            </Button>
         <Button
           type="button"
           variant="ghost"
@@ -194,6 +209,18 @@ export default function RichTextEditor({ value, onChange }: RichTextEditorProps)
         >
           Redo
         </Button>
+          </>
+        )}
+        {isHtmlMode && <div style={{ flexGrow: 1 }}></div>}
+        <div style={{ width: "1px", backgroundColor: "var(--color-outline)", margin: "0 0.25rem" }}></div>
+        <Button
+          type="button"
+          variant="ghost"
+          onClick={toggleMode}
+          style={{ padding: "0.25rem 0.5rem", backgroundColor: isHtmlMode ? "var(--color-primary-container)" : "transparent" }}
+        >
+          {isHtmlMode ? "Visual Mode" : "HTML Mode"}
+        </Button>
       </div>
 
       {showMediaPicker && (
@@ -224,9 +251,31 @@ export default function RichTextEditor({ value, onChange }: RichTextEditorProps)
         </div>
       )}
 
-      <div style={{ padding: "1rem", minHeight: "300px", cursor: "text", backgroundColor: "var(--color-surface)" }} onClick={() => editor.commands.focus()}>
-        <EditorContent editor={editor} style={{ outline: "none", minHeight: "300px" }} />
-      </div>
+      {isHtmlMode ? (
+        <textarea
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          style={{
+            width: "100%",
+            minHeight: "300px",
+            padding: "1rem",
+            fontFamily: "monospace",
+            fontSize: "0.875rem",
+            border: "none",
+            outline: "none",
+            resize: "vertical",
+            backgroundColor: "var(--color-surface)",
+            color: "var(--color-on-surface)",
+            display: "block",
+            lineHeight: 1.5,
+          }}
+          placeholder="Enter clean HTML here..."
+        />
+      ) : (
+        <div style={{ padding: "1rem", minHeight: "300px", cursor: "text", backgroundColor: "var(--color-surface)" }} onClick={() => editor.commands.focus()}>
+          <EditorContent editor={editor} style={{ outline: "none", minHeight: "300px" }} />
+        </div>
+      )}
       
       <style>{`
         .tiptap {
