@@ -28,8 +28,37 @@ export async function PUT(
         seoDescOverride: data.seoDescOverride || null,
         contentTitle: data.contentTitle || null,
         contentBody: data.contentBody || null,
+        heroSubtitle: data.heroSubtitle || null,
       },
     });
+
+    if (data.faqs !== undefined) {
+      await prisma.platformFAQ.deleteMany({ where: { platformId: id } });
+      if (data.faqs.length > 0) {
+        await prisma.platformFAQ.createMany({
+          data: data.faqs.map((faq: any, index: number) => ({
+            platformId: id,
+            question: faq.question,
+            answer: faq.answer,
+            sortOrder: faq.sortOrder ?? index,
+          })),
+        });
+      }
+    }
+
+    if (data.relatedBlogPosts !== undefined) {
+      await prisma.platformRelatedBlogPost.deleteMany({ where: { platformId: id } });
+      if (data.relatedBlogPosts.length > 0) {
+        await prisma.platformRelatedBlogPost.createMany({
+          data: data.relatedBlogPosts.map((postId: string, index: number) => ({
+            platformId: id,
+            blogPostId: postId,
+            sortOrder: index,
+          })),
+        });
+      }
+    }
+
     return NextResponse.json(platform);
   } catch (error) {
     return NextResponse.json({ error: "Failed to update platform" }, { status: 500 });

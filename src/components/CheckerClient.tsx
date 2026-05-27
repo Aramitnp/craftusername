@@ -20,10 +20,12 @@ type CheckResult = {
 
 export default function CheckerClient({ 
   initialPlatformSlug,
-  dynamicContent
+  dynamicContent,
+  platformHeroSubtitle,
 }: { 
   initialPlatformSlug?: string,
-  dynamicContent?: any
+  dynamicContent?: any,
+  platformHeroSubtitle?: string | null,
 }) {
   const [username, setUsername] = useState("");
   const [results, setResults] = useState<CheckResult[]>([]);
@@ -91,14 +93,23 @@ export default function CheckerClient({
   if (isPlatformPage) {
     actualDisplayTitle = `Check ${platforms[0].name} Username.`;
   }
+  
+  let actualDisplaySubtitle = homeContent.heroSubtitle;
+  if (isPlatformPage) {
+    if (platformHeroSubtitle) {
+      actualDisplaySubtitle = platformHeroSubtitle;
+    } else {
+      actualDisplaySubtitle = `Check if your desired username is available on ${platforms[0].name} instantly.`;
+    }
+  }
 
   return (
     <>
-      <section className={styles.heroSection} style={{ paddingBottom: hasSearched ? "4rem" : "6rem" }}>
+      <section className={styles.heroSection} style={{ paddingBottom: hasSearched ? "4rem" : (isPlatformPage ? "3rem" : "6rem") }}>
         <h1 className={`display-lg ${styles.heroTitle}`}>
           {actualDisplayTitle}
         </h1>
-        <p className={styles.heroSubtitle}>{homeContent.heroSubtitle}</p>
+        <p className={styles.heroSubtitle}>{actualDisplaySubtitle}</p>
 
         <form className={styles.searchContainer} onSubmit={handleSearch}>
           <Input 
@@ -114,7 +125,7 @@ export default function CheckerClient({
         {error && <p style={{color: "var(--color-on-error-container)", marginTop: "1.5rem"}}>{error}</p>}
       </section>
 
-      {!hasSearched && platforms.length > 0 && (
+      {!hasSearched && !isPlatformPage && platforms.length > 0 && (
         <section className={styles.supportedPlatformsSection}>
           <h2 className="headline-md" style={{ paddingTop: 0 }}>{homeContent.supportedPlatformsTitle}</h2>
           <div 
@@ -159,7 +170,7 @@ export default function CheckerClient({
         </section>
       )}
 
-      {!loading && (
+      {!loading && !isPlatformPage && (
         <section className={styles.seoSection}>
           <h2 className="headline-md">{seoContent.explanationTitle}</h2>
           <p style={{marginBottom: "3rem", color: "var(--color-on-surface-variant)", lineHeight: 1.6, fontSize: "1.125rem"}}>

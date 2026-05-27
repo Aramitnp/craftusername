@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
+import Link from "next/link";
 
 export default function AdminContentPage() {
   const [content, setContent] = useState<any>(null);
@@ -332,9 +333,9 @@ export default function AdminContentPage() {
           <p style={{ color: "var(--color-on-surface-variant)", fontSize: "0.875rem", marginBottom: "1.5rem" }}>
             Manage your site-wide footer including brand information, columns, and internal links.
           </p>
-          <a href="/admin/content/footer" style={{ display: "inline-block", textDecoration: "none" }}>
+          <Link href="/admin/content/footer" style={{ display: "inline-block", textDecoration: "none" }}>
             <Button type="button" style={{ width: "auto" }}>Manage Footer Settings</Button>
-          </a>
+          </Link>
         </div>
 
         {message && <div style={{ padding: "1rem", backgroundColor: "var(--color-surface-container)", borderRadius: "var(--radius-md)", color: "var(--color-primary)", fontWeight: 600 }}>{message}</div>}

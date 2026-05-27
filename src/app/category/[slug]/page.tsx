@@ -35,7 +35,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 export default async function CategoryArchivePage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
 
-  let category = await prisma.blogCategory.findUnique({ 
+  const category = await prisma.blogCategory.findUnique({ 
     where: { slug },
     include: {
       posts: {

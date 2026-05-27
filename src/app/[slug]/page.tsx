@@ -14,12 +14,20 @@ interface Props {
 }
 
 async function getPlatformBySlug(slug: string) {
-  let platform = await prisma.platform.findUnique({ where: { slug } });
+  const include = {
+    faqs: { orderBy: { sortOrder: 'asc' } as const },
+    relatedBlogPosts: {
+      orderBy: { sortOrder: 'asc' } as const,
+      include: { blogPost: true }
+    }
+  };
+
+  let platform = await prisma.platform.findUnique({ where: { slug }, include });
   if (platform) return platform;
 
   if (slug.endsWith("-username-checker")) {
     const baseSlug = slug.replace("-username-checker", "");
-    platform = await prisma.platform.findUnique({ where: { slug: baseSlug } });
+    platform = await prisma.platform.findUnique({ where: { slug: baseSlug }, include });
   }
 
   return platform;
@@ -107,7 +115,6 @@ export default async function PlatformCheckerOrCustomPage({ params }: Props) {
     const relatedPlatforms = await prisma.platform.findMany({
       where: { isActive: true, id: { not: platform.id } },
       orderBy: { sortOrder: "asc" },
-      take: 6,
     });
 
     const contentTitle = platform.contentTitle || `About ${platform.name} Username Checker`;
@@ -115,33 +122,114 @@ export default async function PlatformCheckerOrCustomPage({ params }: Props) {
 
     return (
       <main className={styles.main}>
-        <CheckerClient initialPlatformSlug={platform.slug} dynamicContent={content} />
+        <CheckerClient initialPlatformSlug={platform.slug} dynamicContent={content} platformHeroSubtitle={platform.heroSubtitle} />
 
-        <section className={styles.platformContentSection}>
-          <h2 className="headline-md">{contentTitle}</h2>
-          <p style={{ color: "var(--color-on-surface-variant)", lineHeight: 1.7, fontSize: "1.0625rem" }}>
-            {contentBody}
-          </p>
-        </section>
+        <div style={{ backgroundColor: "var(--color-surface-container-lowest)", borderTop: "1px solid var(--color-outline-variant)", flexGrow: 1, paddingTop: "4rem" }}>
+          
+          {contentBody && (
+            <article style={{ maxWidth: "800px", margin: "0 auto", padding: "0 1rem", width: "100%" }}>
+              {contentTitle && <h2 style={{ fontSize: "2rem", fontWeight: 700, marginBottom: "2rem", color: "var(--color-on-surface)", textAlign: "center", letterSpacing: "-0.01em" }}>{contentTitle}</h2>}
+              <div 
+                className="rich-content"
+                dangerouslySetInnerHTML={{ __html: sanitizeHtml(contentBody, {
+                  allowedTags: sanitizeHtml.defaults.allowedTags.concat(['img', 'h2', 'h3', 'h4', 'span']),
+                  allowedAttributes: {
+                    ...sanitizeHtml.defaults.allowedAttributes,
+                    'img': ['src', 'alt', 'class'],
+                    'a': ['href', 'target', 'rel', 'class'],
+                  },
+                }) }}
+              />
+            </article>
+          )}
 
-        {relatedPlatforms.length > 0 && (
-          <section className={styles.relatedPlatformsSection}>
-            <h3 className="headline-md" style={{ paddingTop: 0 }}>Check Other Platforms</h3>
-            <div className={styles.popularPlatformsGrid}>
-              {relatedPlatforms.map(p => {
-                const fullSlug = p.slug.endsWith("-username-checker") ? p.slug : `${p.slug}-username-checker`;
-                return (
-                  <Link key={p.id} href={`/${fullSlug}`} className={styles.popularPlatformCard}>
-                    <div className={styles.popularPlatformLogo}>
-                      {p.logo ? <img src={p.logo} alt={p.name} /> : <span>{p.name[0]}</span>}
+          {platform.faqs && platform.faqs.length > 0 && (
+            <section style={{ width: "100%", maxWidth: "800px", margin: "5rem auto 0", padding: "0 1rem" }}>
+              <h3 style={{ fontSize: "2rem", fontWeight: 700, color: "var(--color-on-surface)", marginBottom: "2rem", textAlign: "center" }}>Frequently Asked Questions</h3>
+              <div style={{ display: "flex", flexDirection: "column", gap: "1rem", marginBottom: "2rem" }}>
+                {platform.faqs.map((faq: any, index: number) => (
+                  <details key={index} className="faq-accordion">
+                    <summary className="faq-summary">
+                      {faq.question}
+                      <span className="faq-icon">↓</span>
+                    </summary>
+                    <div className="faq-answer">
+                      {faq.answer}
                     </div>
-                    <span className={styles.popularPlatformName}>{p.name}</span>
+                  </details>
+                ))}
+              </div>
+            </section>
+          )}
+
+          {platform.relatedBlogPosts && platform.relatedBlogPosts.length > 0 && (
+            <section style={{ width: "100%", maxWidth: "1000px", margin: "5rem auto 0", padding: "0 1rem" }}>
+              <h3 style={{ fontSize: "2rem", fontWeight: 700, color: "var(--color-on-surface)", marginBottom: "2.5rem", textAlign: "center" }}>Related Username Ideas & Guides</h3>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: "2rem" }}>
+                {platform.relatedBlogPosts.map(({ blogPost }: any) => (
+                  <Link key={blogPost.id} href={`/blog/${blogPost.slug}`} style={{ textDecoration: "none", color: "inherit", display: "flex", flexDirection: "column", height: "100%", backgroundColor: "var(--color-surface)", border: "1px solid var(--color-outline-variant)", borderRadius: "var(--radius-lg)", overflow: "hidden" }} className="hover-card">
+                    {blogPost.featuredImage && (
+                      <div style={{ width: "100%", height: "200px", overflow: "hidden" }}>
+                        <img src={blogPost.featuredImage} alt={blogPost.featuredImageAlt || blogPost.title} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                      </div>
+                    )}
+                    <div style={{ padding: "1.5rem", display: "flex", flexDirection: "column", flexGrow: 1 }}>
+                      <h4 style={{ fontWeight: 600, fontSize: "1.25rem", color: "var(--color-primary)", marginBottom: "0.5rem", lineHeight: 1.4 }}>{blogPost.title}</h4>
+                      {blogPost.seoDescription && <p style={{ color: "var(--color-on-surface-variant)", fontSize: "0.9375rem", lineHeight: 1.6, margin: 0, flexGrow: 1 }}>{blogPost.seoDescription}</p>}
+                    </div>
                   </Link>
-                );
-              })}
-            </div>
-          </section>
-        )}
+                ))}
+              </div>
+            </section>
+          )}
+
+          {relatedPlatforms.length > 0 && (
+            <section style={{ width: "100%", maxWidth: "1000px", margin: "5rem auto 5rem", padding: "0 1rem", textAlign: "center" }}>
+              <h2 className="headline-md" style={{ paddingTop: 0, marginBottom: "1rem" }}>Check Other Platforms</h2>
+              <p style={{ color: "var(--color-on-surface-variant)", fontSize: "1.125rem", marginBottom: "3rem" }}>
+                Explore username availability across other popular social media platforms.
+              </p>
+              <div className={styles.popularPlatformsGrid}>
+                {relatedPlatforms.map(p => {
+                  const fullSlug = p.slug.endsWith("-username-checker") ? p.slug : `${p.slug}-username-checker`;
+                  return (
+                    <Link key={p.id} href={`/${fullSlug}`} className={styles.popularPlatformCard}>
+                      <div className={styles.popularPlatformLogo}>
+                        {p.logo ? <img src={p.logo} alt={p.name} /> : <span>{p.name[0]}</span>}
+                      </div>
+                      <span className={styles.popularPlatformName}>{p.name} Username Checker</span>
+                    </Link>
+                  );
+                })}
+              </div>
+            </section>
+          )}
+        </div>
+
+        <style dangerouslySetInnerHTML={{__html: `
+          .rich-content { font-size: 1.125rem; line-height: 1.8; color: var(--color-on-surface); }
+          .rich-content h2 { font-size: 2rem; margin-top: 3rem; margin-bottom: 1.5rem; font-weight: 700; color: var(--color-primary); }
+          .rich-content h3 { font-size: 1.5rem; margin-top: 2rem; margin-bottom: 1rem; font-weight: 600; }
+          .rich-content p { margin-bottom: 1.5rem; }
+          .rich-content img { max-width: 100%; height: auto; border-radius: var(--radius-lg); margin: 2rem 0; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+          .rich-content a { color: var(--color-primary); text-decoration: underline; text-underline-offset: 4px; font-weight: 500; transition: color 0.2s; }
+          .rich-content a:hover { color: var(--color-on-surface); }
+          .rich-content ul { list-style: disc; padding-left: 1.5rem; margin-bottom: 1.5rem; }
+          .rich-content ol { list-style: decimal; padding-left: 1.5rem; margin-bottom: 1.5rem; }
+          .rich-content li { margin-bottom: 0.5rem; }
+          .rich-content blockquote { border-left: 4px solid var(--color-primary); padding-left: 1.5rem; margin-left: 0; color: var(--color-on-surface-variant); font-style: italic; background: var(--color-surface-container-lowest); padding: 1.5rem; border-radius: 0 var(--radius-lg) var(--radius-lg) 0; }
+          
+          .faq-accordion { background-color: var(--color-surface-container-lowest); border: 1px solid var(--color-outline-variant); border-radius: var(--radius-lg); overflow: hidden; transition: box-shadow 0.2s; }
+          .faq-accordion:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.03); }
+          .faq-summary { padding: 1.25rem 1.5rem; font-weight: 600; font-size: 1.125rem; cursor: pointer; display: flex; justify-content: space-between; align-items: center; list-style: none; }
+          .faq-summary::-webkit-details-marker { display: none; }
+          .faq-icon { color: var(--color-primary); transition: transform 0.2s; font-size: 1.25rem; line-height: 1; }
+          .faq-accordion[open] .faq-icon { transform: rotate(180deg); }
+          .faq-answer { padding: 0 1.5rem 1.5rem; color: var(--color-on-surface-variant); line-height: 1.6; font-size: 1.0625rem; }
+          
+          .hover-card { transition: transform 0.2s ease, box-shadow 0.2s ease; }
+          .hover-card:hover { transform: translateY(-4px); box-shadow: 0 12px 24px rgba(0,0,0,0.08); border-color: var(--color-outline); }
+        `}} />
       </main>
     );
   }

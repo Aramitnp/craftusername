@@ -9,6 +9,13 @@ export async function GET(request: Request) {
     const platforms = await prisma.platform.findMany({
       where: activeOnly ? { isActive: true } : undefined,
       orderBy: { sortOrder: 'asc' },
+      include: {
+        faqs: { orderBy: { sortOrder: 'asc' } },
+        relatedBlogPosts: {
+          orderBy: { sortOrder: 'asc' },
+          include: { blogPost: true }
+        }
+      }
     });
     return NextResponse.json(platforms);
   } catch (error) {
@@ -38,8 +45,31 @@ export async function POST(request: Request) {
         seoDescOverride: data.seoDescOverride || null,
         contentTitle: data.contentTitle || null,
         contentBody: data.contentBody || null,
+        heroSubtitle: data.heroSubtitle || null,
       },
     });
+
+    if (data.faqs && data.faqs.length > 0) {
+      await prisma.platformFAQ.createMany({
+        data: data.faqs.map((faq: any, index: number) => ({
+          platformId: platform.id,
+          question: faq.question,
+          answer: faq.answer,
+          sortOrder: faq.sortOrder ?? index,
+        })),
+      });
+    }
+
+    if (data.relatedBlogPosts && data.relatedBlogPosts.length > 0) {
+      await prisma.platformRelatedBlogPost.createMany({
+        data: data.relatedBlogPosts.map((postId: string, index: number) => ({
+          platformId: platform.id,
+          blogPostId: postId,
+          sortOrder: index,
+        })),
+      });
+    }
+
     return NextResponse.json(platform, { status: 201 });
   } catch (error) {
     return NextResponse.json({ error: "Failed to create platform" }, { status: 500 });

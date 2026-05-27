@@ -24,6 +24,10 @@ model Platform {
   seoDescOverride   String?
   contentTitle      String?
   contentBody       String?
+  heroSubtitle      String?
+  
+  faqs              PlatformFAQ[]
+  relatedBlogPosts  PlatformRelatedBlogPost[]
 }
 
 model SiteConfig {
@@ -80,6 +84,37 @@ model BlogPost {
   publishedAt      DateTime?
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
+  
+  relatedPlatforms PlatformRelatedBlogPost[]
+}
+
+model PlatformFAQ {
+  id         String   @id @default(uuid())
+  platformId String
+  question   String
+  answer     String
+  sortOrder  Int      @default(0)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  platform   Platform @relation(fields: [platformId], references: [id], onDelete: Cascade)
+
+  @@index([platformId])
+}
+
+model PlatformRelatedBlogPost {
+  id         String   @id @default(uuid())
+  platformId String
+  blogPostId String
+  sortOrder  Int      @default(0)
+  createdAt  DateTime @default(now())
+
+  platform   Platform @relation(fields: [platformId], references: [id], onDelete: Cascade)
+  blogPost   BlogPost @relation(fields: [blogPostId], references: [id], onDelete: Cascade)
+
+  @@unique([platformId, blogPostId])
+  @@index([platformId])
+  @@index([blogPostId])
 }
 
 model BlogCategory {

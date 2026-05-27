@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import MediaPicker from "@/components/MediaPicker";
+import RichTextEditor from "./RichTextEditor";
+import { useEffect } from "react";
 
 interface PlatformFormProps {
   initialData?: any;
@@ -36,9 +38,67 @@ export default function PlatformForm({ initialData, isEdit }: PlatformFormProps)
     seoDescOverride: initialData?.seoDescOverride || "",
     contentTitle: initialData?.contentTitle || "",
     contentBody: initialData?.contentBody || "",
+    heroSubtitle: initialData?.heroSubtitle || "",
+    faqs: initialData?.faqs || [],
+    relatedBlogPosts: initialData?.relatedBlogPosts?.map((r: any) => r.blogPostId) || [],
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [availablePosts, setAvailablePosts] = useState<{id: string, title: string}[]>([]);
+
+  useEffect(() => {
+    fetch("/api/blog")
+      .then(res => res.json())
+      .then(data => {
+        if (Array.isArray(data)) {
+          setAvailablePosts(data.map((p: any) => ({ id: p.id, title: p.title })));
+        }
+      })
+      .catch(console.error);
+  }, []);
+
+  const handleAddFaq = () => {
+    setFormData(prev => ({
+      ...prev,
+      faqs: [...prev.faqs, { question: "", answer: "" }]
+    }));
+  };
+
+  const handleUpdateFaq = (index: number, field: "question" | "answer", value: string) => {
+    setFormData(prev => {
+      const newFaqs = [...prev.faqs];
+      newFaqs[index][field] = value;
+      return { ...prev, faqs: newFaqs };
+    });
+  };
+
+  const handleRemoveFaq = (index: number) => {
+    setFormData(prev => {
+      const newFaqs = [...prev.faqs];
+      newFaqs.splice(index, 1);
+      return { ...prev, faqs: newFaqs };
+    });
+  };
+
+  const handleMoveFaq = (index: number, direction: -1 | 1) => {
+    setFormData(prev => {
+      if (index + direction < 0 || index + direction >= prev.faqs.length) return prev;
+      const newFaqs = [...prev.faqs];
+      const temp = newFaqs[index];
+      newFaqs[index] = newFaqs[index + direction];
+      newFaqs[index + direction] = temp;
+      return { ...prev, faqs: newFaqs };
+    });
+  };
+
+  const handleToggleBlogPost = (postId: string) => {
+    setFormData(prev => ({
+      ...prev,
+      relatedBlogPosts: prev.relatedBlogPosts.includes(postId)
+        ? prev.relatedBlogPosts.filter((id: string) => id !== postId)
+        : [...prev.relatedBlogPosts, postId]
+    }));
+  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target;
@@ -138,6 +198,14 @@ export default function PlatformForm({ initialData, isEdit }: PlatformFormProps)
         </div>
       </FormGroup>
 
+      <FormGroup title="Hero Section">
+        <div>
+          <label className="label-md" style={{ display: "block", marginBottom: "0.5rem" }}>Hero Subtitle</label>
+          <Input name="heroSubtitle" value={formData.heroSubtitle} onChange={handleChange} placeholder="Check username availability instantly" />
+          <p style={{ fontSize: "0.875rem", color: "var(--color-on-surface-variant)", marginTop: "0.5rem" }}>Shown under the H1 on the platform page.</p>
+        </div>
+      </FormGroup>
+
       <FormGroup title="SEO & Page Content">
         <p style={{ fontSize: "0.875rem", color: "var(--color-on-surface-variant)", margin: "-0.5rem 0 0.5rem" }}>Optional. Override auto-generated SEO or add custom content below the checker on this platform's page.</p>
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
@@ -157,14 +225,65 @@ export default function PlatformForm({ initialData, isEdit }: PlatformFormProps)
         </div>
         <div>
           <label className="label-md" style={{ display: "block", marginBottom: "0.5rem" }}>Content Body</label>
-          <textarea
-            name="contentBody"
-            value={formData.contentBody}
-            onChange={(e) => setFormData((prev) => ({ ...prev, contentBody: e.target.value }))}
-            placeholder="Write SEO content about checking usernames on this platform..."
-            style={{ width: "100%", padding: "0.75rem", borderRadius: "var(--radius-md)", border: "2px solid transparent", backgroundColor: "var(--color-surface-container-highest)", fontFamily: "var(--font-inter)", fontSize: "0.9375rem", minHeight: "120px", resize: "vertical" }}
-          />
+          <div style={{ backgroundColor: "var(--color-surface-container-highest)", borderRadius: "var(--radius-md)" }}>
+            <RichTextEditor
+              value={formData.contentBody}
+              onChange={(val) => setFormData((prev) => ({ ...prev, contentBody: val }))}
+            />
+          </div>
           <p style={{ fontSize: "0.875rem", color: "var(--color-on-surface-variant)", marginTop: "0.25rem" }}>Paragraph shown below the checker. Leave empty for auto-generated fallback.</p>
+        </div>
+      </FormGroup>
+
+      <FormGroup title="Platform FAQs">
+        <p style={{ fontSize: "0.875rem", color: "var(--color-on-surface-variant)", margin: "-0.5rem 0 0.5rem" }}>Add specific FAQs for this platform.</p>
+        {formData.faqs.map((faq: any, idx: number) => (
+          <div key={idx} style={{ display: "flex", gap: "1rem", alignItems: "flex-start", backgroundColor: "var(--color-surface)", padding: "1rem", borderRadius: "var(--radius-md)", marginBottom: "1rem" }}>
+            <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+              <Input value={faq.question} onChange={e => handleUpdateFaq(idx, "question", e.target.value)} placeholder="Question" />
+              <textarea
+                value={faq.answer}
+                onChange={e => handleUpdateFaq(idx, "answer", e.target.value)}
+                placeholder="Answer"
+                style={{ width: "100%", padding: "0.75rem", borderRadius: "var(--radius-md)", border: "1px solid var(--color-outline)", fontFamily: "var(--font-inter)", minHeight: "80px", resize: "vertical" }}
+              />
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+              <Button type="button" variant="secondary" onClick={() => handleMoveFaq(idx, -1)} disabled={idx === 0}>↑</Button>
+              <Button type="button" variant="secondary" onClick={() => handleMoveFaq(idx, 1)} disabled={idx === formData.faqs.length - 1}>↓</Button>
+              <Button type="button" variant="ghost" onClick={() => handleRemoveFaq(idx)} style={{ color: "var(--color-error)" }}>X</Button>
+            </div>
+          </div>
+        ))}
+        <Button type="button" variant="secondary" onClick={handleAddFaq}>+ Add FAQ</Button>
+      </FormGroup>
+
+      <FormGroup title="Related Blog Posts">
+        <p style={{ fontSize: "0.875rem", color: "var(--color-on-surface-variant)", margin: "-0.5rem 0 0.5rem" }}>Select specific blog posts to show on this platform's page.</p>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem" }}>
+          {availablePosts.map(post => {
+            const isSelected = formData.relatedBlogPosts.includes(post.id);
+            return (
+              <button 
+                key={post.id} 
+                type="button" 
+                onClick={() => handleToggleBlogPost(post.id)}
+                style={{
+                  padding: "0.5rem 1rem",
+                  borderRadius: "var(--radius-full)",
+                  border: `1px solid ${isSelected ? "var(--color-primary)" : "var(--color-outline)"}`,
+                  backgroundColor: isSelected ? "var(--color-primary-container)" : "transparent",
+                  color: isSelected ? "var(--color-on-primary-container)" : "var(--color-on-surface)",
+                  cursor: "pointer",
+                  fontSize: "0.875rem",
+                  textAlign: "left"
+                }}
+              >
+                {post.title}
+              </button>
+            )
+          })}
+          {availablePosts.length === 0 && <span style={{ fontSize: "0.875rem", color: "var(--color-on-surface-variant)" }}>No blog posts available</span>}
         </div>
       </FormGroup>
 

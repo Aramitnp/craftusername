@@ -35,7 +35,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 export default async function TagArchivePage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
 
-  let tag = await prisma.blogTag.findUnique({ 
+  const tag = await prisma.blogTag.findUnique({ 
     where: { slug },
     include: {
       posts: {
