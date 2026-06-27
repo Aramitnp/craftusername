@@ -20,6 +20,8 @@ model Platform {
   isActive          Boolean @default(true)
   sortOrder         Int     @default(0)
   checkMethod       String  @default("GET")
+  errorType         String  @default("status_code")
+  errorMsg          String?
   seoTitleOverride  String?
   seoDescOverride   String?
   contentTitle      String?

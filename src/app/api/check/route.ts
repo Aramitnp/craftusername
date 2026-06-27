@@ -35,16 +35,27 @@ export async function POST(request: Request) {
             signal: AbortSignal.timeout(5000),
           });
 
-          // A 404 typically means the profile doesn't exist -> Available
-          if (res.status === 404) {
-            status = "Available";
-          } 
-          // 200 generally means it's taken
-          else if (res.status >= 200 && res.status < 400) {
-            status = "Taken";
+          if (platform.errorType === "message_match" && platform.errorMsg) {
+            const text = await res.text();
+            if (text.includes(platform.errorMsg)) {
+              status = "Available";
+            } else if (res.status >= 200 && res.status < 400) {
+              status = "Taken";
+            } else {
+              status = "Unknown";
+            }
           } else {
-            // Some other status code (403, 500)
-            status = "Unknown";
+            // A 404 typically means the profile doesn't exist -> Available
+            if (res.status === 404) {
+              status = "Available";
+            } 
+            // 200 generally means it's taken
+            else if (res.status >= 200 && res.status < 400) {
+              status = "Taken";
+            } else {
+              // Some other status code (403, 500)
+              status = "Unknown";
+            }
           }
         } catch (error) {
           console.error(`Error checking ${platform.name} for ${username}:`, error);

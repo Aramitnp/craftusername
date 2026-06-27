@@ -24,6 +24,8 @@ export async function PUT(
         isActive: data.isActive,
         sortOrder: data.sortOrder,
         checkMethod: data.checkMethod,
+        errorType: data.errorType !== undefined ? data.errorType : undefined,
+        errorMsg: data.errorMsg !== undefined ? data.errorMsg : undefined,
         seoTitleOverride: data.seoTitleOverride || null,
         seoDescOverride: data.seoDescOverride || null,
         contentTitle: data.contentTitle || null,

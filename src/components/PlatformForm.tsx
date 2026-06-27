@@ -32,6 +32,8 @@ export default function PlatformForm({ initialData, isEdit }: PlatformFormProps)
     logo: initialData?.logo || "",
     profileUrlPattern: initialData?.profileUrlPattern || "",
     checkMethod: initialData?.checkMethod || "GET",
+    errorType: initialData?.errorType || "status_code",
+    errorMsg: initialData?.errorMsg || "",
     isActive: initialData?.isActive ?? true,
     sortOrder: initialData?.sortOrder || 0,
     seoTitleOverride: initialData?.seoTitleOverride || "",
@@ -179,6 +181,28 @@ export default function PlatformForm({ initialData, isEdit }: PlatformFormProps)
           </select>
           <p style={{ fontSize: "0.875rem", color: "var(--color-on-surface-variant)", marginTop: "0.5rem" }}>Determine how the server queries this platform to check availability.</p>
         </div>
+
+        <div>
+          <label className="label-md" style={{ display: "block", marginBottom: "0.5rem" }}>Missing Profile Detection Strategy</label>
+          <select 
+            name="errorType" 
+            value={formData.errorType} 
+            onChange={handleChange}
+            style={{ width: "100%", padding: "1rem", borderRadius: "var(--radius-md)", border: "2px solid transparent", backgroundColor: "var(--color-surface-container-highest)", fontFamily: "var(--font-inter)", fontSize: "1rem" }}
+          >
+            <option value="status_code">HTTP Status Code (404 = Available)</option>
+            <option value="message_match">Message Match (Look for specific text on page)</option>
+          </select>
+          <p style={{ fontSize: "0.875rem", color: "var(--color-on-surface-variant)", marginTop: "0.5rem" }}>How to detect if a profile is available.</p>
+        </div>
+
+        {formData.errorType === "message_match" && (
+          <div>
+            <label className="label-md" style={{ display: "block", marginBottom: "0.5rem" }}>Error Message Text</label>
+            <Input name="errorMsg" value={formData.errorMsg} onChange={handleChange} placeholder="e.g. Sorry, this page isn't available." />
+            <p style={{ fontSize: "0.875rem", color: "var(--color-on-surface-variant)", marginTop: "0.5rem" }}>The exact text to look for on the page to confirm the username is available.</p>
+          </div>
+        )}
       </FormGroup>
 
       <FormGroup title="Display Settings">

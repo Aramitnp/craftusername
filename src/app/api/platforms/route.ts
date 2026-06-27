@@ -41,6 +41,8 @@ export async function POST(request: Request) {
         isActive: data.isActive ?? true,
         sortOrder: data.sortOrder ?? 0,
         checkMethod: data.checkMethod ?? "GET",
+        errorType: data.errorType || "status_code",
+        errorMsg: data.errorMsg || null,
         seoTitleOverride: data.seoTitleOverride || null,
         seoDescOverride: data.seoDescOverride || null,
         contentTitle: data.contentTitle || null,
